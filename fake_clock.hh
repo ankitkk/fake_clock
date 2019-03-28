@@ -23,18 +23,23 @@
 
 #include <chrono>
 #include <cstdint>
+#include <wink/signal.hpp>
 
 namespace testing {
   class fake_clock {
    public:
-    typedef uint64_t rep;
-    typedef std::ratio<1l, 1000000000l> period;
-    typedef std::chrono::duration<rep, period> duration;
-    typedef std::chrono::time_point<fake_clock> time_point;
+
+    using rep                       = long long;
+    using period                    = std::nano;
+    using duration                  = std::chrono::nanoseconds;
+    using time_point                = std::chrono::time_point<fake_clock>;
 
     static void advance(duration d) noexcept;
+    static void advanceTo(time_point  point) noexcept;
     static void reset_to_epoch() noexcept;
     static time_point now() noexcept;
+
+    static wink::signal<wink::slot< void(fake_clock::time_point& time)>> onClockUpdate;
 
    private:
     fake_clock() = delete;
@@ -44,6 +49,7 @@ namespace testing {
     static time_point now_us_;
     static const bool is_steady;
   };
+
 }
 
 #endif
